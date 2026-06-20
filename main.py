@@ -11,8 +11,8 @@ app = Flask('')
 def home():
     return "السيرفر يعمل بكامل طاقته!"
 
-def run_web():
-    app.run(host='0.0.0.0', port=8080)
+d#ef run_web():
+    #app.run(host='0.0.0.0', port=8080)
 
 # 2. إعداد البوت
 TOKEN = os.environ.get('BOT_TOKEN')
