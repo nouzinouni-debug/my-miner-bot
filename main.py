@@ -43,5 +43,6 @@ def stop(message):
 
 if __name__ == "__main__":
     print("🤖 البوت يعمل الآن...")
-    bot.polling()
+    bot.polling(none_stop=True, interval=0)
+    
   
