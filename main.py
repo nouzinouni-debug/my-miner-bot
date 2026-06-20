@@ -2,16 +2,16 @@ import telebot
 import subprocess
 import os
 import requests
-from flask import Flask
+#from flask import Flask
 from threading import Thread
 
 # 1. إعداد خادم الويب الوهمي ليبقى السيرفر مستيقظاً 24/7
-app = Flask('')
-@app.route('/')
-def home():
-    return "السيرفر يعمل بكامل طاقته!"
+#app = Flask('')
+#@app.route('/')
+#def home():
+#    return "السيرفر يعمل بكامل طاقته!"
 
-d#ef run_web():
+#ef run_web():
     #app.run(host='0.0.0.0', port=8080)
 
 # 2. إعداد البوت
