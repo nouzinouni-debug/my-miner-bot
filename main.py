@@ -1,48 +1,41 @@
 import telebot
 import subprocess
 import os
-import threading
+import requests
 
-TOKEN = os.environ.get('BOT_TOKEN') # سنضع التوكن في إعدادات Railway
+TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 miner_process = None
 
 def download_xmrig():
     if not os.path.exists("xmrig"):
         print("📥 جاري تحميل المحرك...")
-        subprocess.run(["wget", "-q", "https://github.com/xmrig/xmrig/releases/download/v6.21.0/xmrig-6.21.0-linux-x64.tar.gz"])
-        subprocess.run(["tar", "-xf", "xmrig-6.21.0-linux-x64.tar.gz"])
-        subprocess.run(["mv", "xmrig-6.21.0/xmrig", "."])
+        url = "https://github.com/xmrig/xmrig/releases/download/v6.21.0/xmrig-6.21.0-linux-x64.tar.gz"
+        response = requests.get(url)
+        with open("xmrig.tar.gz", "wb") as f:
+            f.write(response.content)
+        subprocess.run(["tar", "-xf", "xmrig.tar.gz"])
+        os.rename("xmrig-6.21.0/xmrig", "xmrig")
         print("✅ تم التحميل!")
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "مرحباً! أنا جاهز. استعمل /mine للبدء.")
-
-@bot.message_handler(commands=['mine'])
-def mine(message):
+@bot.message_handler(commands=['start', 'mine', 'stop'])
+def handle_commands(message):
     global miner_process
-    if miner_process is None:
-        download_xmrig()
-        # هنا أمر التعدين (تعديل المحفظة والمنفذ)
-        cmd = ["./xmrig", "-o", "rx.unmineable.com:443", "-u", "DOGE:DTmnad5xggQy4ugfDQqX7vwBQaeZq7RyAz.Nouzzy_Railway", "-a", "rx", "-p", "x", "--tls"]
-        miner_process = subprocess.Popen(cmd)
-        bot.reply_to(message, "🚀 تم تشغيل المعدن على السيرفر!")
-    else:
-        bot.reply_to(message, "⚠️ المعدن يعمل بالفعل.")
-
-@bot.message_handler(commands=['stop'])
-def stop(message):
-    global miner_process
-    if miner_process:
-        miner_process.terminate()
-        miner_process = None
-        bot.reply_to(message, "🛑 تم إيقاف التعدين.")
-    else:
-        bot.reply_to(message, "المعدن متوقف.")
+    if message.text == '/start':
+        bot.reply_to(message, "أنا جاهز!")
+    elif message.text == '/mine':
+        if miner_process is None:
+            download_xmrig()
+            cmd = ["./xmrig", "-o", "rx.unmineable.com:443", "-u", "DOGE:DTmnad5xggQy4ugfDQqX7vwBQaeZq7RyAz.Nouzzy_Railway", "-a", "rx", "-p", "x", "--tls"]
+            miner_process = subprocess.Popen(cmd)
+            bot.reply_to(message, "🚀 تم تشغيل المعدن!")
+        else:
+            bot.reply_to(message, "⚠️ المعدن يعمل بالفعل.")
+    elif message.text == '/stop':
+        if miner_process:
+            miner_process.terminate()
+            miner_process = None
+            bot.reply_to(message, "🛑 تم الإيقاف.")
 
 if __name__ == "__main__":
-    print("🤖 البوت يعمل الآن...")
-    bot.polling(none_stop=True, interval=0)
-    
-  
+    bot.polling(none_stop=True)
